@@ -33,15 +33,23 @@ module OpenVersionFilterQueryPatch
       # binding.pry
       if value == ["in_opened_versions"]
         version_ids = scope.open.visible.all(:conditions => 'effective_date IS NOT NULL').collect(&:id).push(0)
+        if self.type == "TimeEntryQuery"
+          iss_ids = Issue.where("fixed_version_id IN (?)", version_ids).collect(&:id)
+          "(#{TimeEntry.table_name}.issue_id IN (#{iss_ids.join(',')}))"
+        else
+          "(#{Issue.table_name}.fixed_version_id IN (#{version_ids.join(',')}))"
+        end
         # do not care about operator and value - just add a condition if filter "in_open_versions" is enabled
-        # "(#{Issue.table_name}.fixed_version_id IN (#{version_ids.join(',')}))"
-        "(issue_id IN (SELECT issue_id FROM #{Issue.table_name} WHERE fixed_version_id IN (#{version_ids.join(',')})))"
-      # binding.pry
+        # "(#{TimeEntry.table_name}.issue_id IN (SELECT issue_id FROM #{Issue.table_name} WHERE fixed_version_id = IN (#{version_ids.join(',')})))"
       elsif value == ['out_of_opened_versions']
         version_ids = scope.open.visible.all(:conditions => 'effective_date IS NULL').collect(&:id).push(0)
+        if self.type == "TimeEntryQuery"
+          iss_ids = Issue.where("fixed_version_id IN (?) OR fixed_version_id IS NULL", version_ids).collect(&:id)
+          "(#{TimeEntry.table_name}.issue_id IN (#{iss_ids.join(',')}))"
+        else
+          "(#{Issue.table_name}.fixed_version_id IN (#{version_ids.join(',')}) OR #{Issue.table_name}.fixed_version_id IS NULL)"
+        end
         # do not care about operator and value - just add a condition if filter "in_open_versions" is enabled
-        # "(#{Issue.table_name}.fixed_version_id IN (#{version_ids.join(',')}) OR #{Issue.table_name}.fixed_version_id IS NULL)"
-        "(issue_id IN (SELECT issue_id FROM #{Issue.table_name} WHERE fixed_version_id IN (#{version_ids.join(',')}))) OR (issue_id IN (SELECT issue_id FROM #{Issue.table_name} WHERE fixed_version_id IS NULL))"
       end
       # binding.pry
 
