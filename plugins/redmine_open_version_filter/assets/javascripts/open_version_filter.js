@@ -6,7 +6,7 @@ function addFilter(field, operator, values) {
     tr.show();
   } else {
     // ========= patch start ============
-    if (field == 'from_versions_open_version_filter') {
+    if (field == 'from_versions_open_version_filter' || field == 'my_version') {
       buildFilterRowPatch(field, operator, values);
     } else {
       buildFilterRow(field, operator, values);

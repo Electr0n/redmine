@@ -21,6 +21,12 @@ module OpenVersionFilterQueryPatch
           :order => 1,
           :values => [[l(:in_opened_versions), :in_opened_versions], [l(:out_of_opened_versions), :out_of_opened_versions]],
         })
+      filters.merge!('my_version' =>
+        {
+          :name => l('field_my_version'),
+          :order => 2,
+          :values => l(:my_version),
+        })
     end
 
     def sql_for_from_versions_open_version_filter_field(field, operator, value)

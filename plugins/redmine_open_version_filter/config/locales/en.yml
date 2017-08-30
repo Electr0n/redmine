@@ -3,3 +3,5 @@ en:
   field_in_opened_versions: 'From versions'
   in_opened_versions: 'In opened versions'
   out_of_opened_versions: 'Out of opened versions'
+  field_my_version: 'Version'
+  my_version: '=><'
