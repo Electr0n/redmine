@@ -34,12 +34,16 @@ module OpenVersionFilterQueryPatch
       if value == ["in_opened_versions"]
         version_ids = scope.open.visible.all(:conditions => 'effective_date IS NOT NULL').collect(&:id).push(0)
         # do not care about operator and value - just add a condition if filter "in_open_versions" is enabled
-        "(#{Issue.table_name}.fixed_version_id IN (#{version_ids.join(',')}))"
+        # "(#{Issue.table_name}.fixed_version_id IN (#{version_ids.join(',')}))"
+        "(issue_id IN (SELECT issue_id FROM #{Issue.table_name} WHERE fixed_version_id IN (#{version_ids.join(',')})))"
+      # binding.pry
       elsif value == ['out_of_opened_versions']
         version_ids = scope.open.visible.all(:conditions => 'effective_date IS NULL').collect(&:id).push(0)
         # do not care about operator and value - just add a condition if filter "in_open_versions" is enabled
-        "(#{Issue.table_name}.fixed_version_id IN (#{version_ids.join(',')}) OR #{Issue.table_name}.fixed_version_id IS NULL)"
+        # "(#{Issue.table_name}.fixed_version_id IN (#{version_ids.join(',')}) OR #{Issue.table_name}.fixed_version_id IS NULL)"
+        "(issue_id IN (SELECT issue_id FROM #{Issue.table_name} WHERE fixed_version_id IN (#{version_ids.join(',')}))) OR (issue_id IN (SELECT issue_id FROM #{Issue.table_name} WHERE fixed_version_id IS NULL))"
       end
+      # binding.pry
 
     end
 
