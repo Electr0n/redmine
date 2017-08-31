@@ -4,4 +4,6 @@ ru:
   in_opened_versions: 'В открытых версиях'
   out_of_opened_versions: 'Вне открытых версиях'
   field_my_version: 'Версия'
-  my_version: '=><'
+  my_version_eql: '='
+  my_version_gr: '>'
+  my_version_l: '<'
