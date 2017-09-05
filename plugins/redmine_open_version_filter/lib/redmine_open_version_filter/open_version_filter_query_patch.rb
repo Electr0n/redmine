@@ -38,20 +38,13 @@ module OpenVersionFilterQueryPatch
         scope = scope.where(id: all_shared_version_ids)
       end
 
+      version_ids = scope.open.visible.all().collect(&:id).push(0)
+      iss_ids = Issue.where(("fixed_version_id " + operator + " ? "), value).collect(&:id)
+
       case self.type
       # if at time entries
       when "TimeEntryQuery"
-        version_ids = scope.open.visible.all().collect(&:id).push(0)
-
-        case operator
-        when "="
-          iss_ids = Issue.where(fixed_version_id: value).collect(&:id)
-        when ">"
-          iss_ids = Issue.where("fixed_version_id > ? ", value).collect(&:id)
-        when "<"
-          iss_ids = Issue.where("fixed_version_id < ? ", value).collect(&:id)
-        end
-
+        
         if iss_ids.empty?
           "(#{TimeEntry.table_name}.issue_id IS NULL)"
         else
@@ -60,16 +53,6 @@ module OpenVersionFilterQueryPatch
 
       # if at issue
       when "IssueQuery"
-        version_ids = scope.open.visible.all().collect(&:id).push(0)
-
-        case operator
-        when "="
-          iss_ids = Issue.where(fixed_version_id: value).collect(&:id)
-        when ">"
-          iss_ids = Issue.where("fixed_version_id > ? ", value).collect(&:id)
-        when "<"
-          iss_ids = Issue.where("fixed_version_id < ? ", value).collect(&:id)
-        end
 
         if iss_ids.empty?
           "(#{Issue.table_name}.id IS NULL)"
@@ -91,6 +74,7 @@ module OpenVersionFilterQueryPatch
       
       if value == ["in_opened_versions"]
       version_ids = scope.open.visible.all(:conditions => 'effective_date IS NOT NULL').collect(&:id).push(0)
+      
       if self.type == "TimeEntryQuery"
         iss_ids = Issue.where("fixed_version_id IN (?)", version_ids).collect(&:id)
         "(#{TimeEntry.table_name}.issue_id IN (#{iss_ids.join(',')}))"
