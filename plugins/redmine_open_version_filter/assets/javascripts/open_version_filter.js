@@ -1,12 +1,12 @@
 // this is patch for js function from core
-function addFilter(field, operator, values) {
+function adddFilter(field, operator, values) {
   var fieldId = field.replace('.', '_');
   var tr = $('#tr_'+fieldId);
   if (tr.length > 0) {
     tr.show();
   } else {
     // ========= patch start ============
-    if (field == 'from_versions_open_version_filter' || field == 'my_version') {
+    if (field == 'from_versions_open_version_filter') {
       buildFilterRowPatch(field, operator, values);
     } else {
       buildFilterRow(field, operator, values);
@@ -28,46 +28,17 @@ function buildFilterRowPatch(field, operator, values) {
   var filterOptions = availableFilters[field];
   var filterValues = filterOptions['values'];
   var i, select;
+  
+  // filter from open version was chose
+  var tr = $('<tr class="filter">').attr('id', 'tr_'+fieldId).html(
+    '<td class="field"><input checked="checked" id="cb_'+fieldId+'" name="f[]" value="'+field+'" type="checkbox"><label for="cb_'+fieldId+'"> '+filterOptions['name']+'</label></td>' + '<td class="values"></td>'
+  );
+  
+  filterTable.append(tr);
 
-  // check if custom filter was chosen
-  if (fieldId === "my_version"){
-    var operators = ["=", ">", "<"];
-    var tr = $('<tr class="filter">').attr('id', 'tr_'+fieldId).html(
-      '<td class="field"><input checked="checked" id="cb_'+fieldId+'" name="f[]" value="'+field+'" type="checkbox"><label for="cb_'+fieldId+'"> '+filterOptions['name']+'</label></td>' +
-      '<td class="operator"><select id="operators_'+fieldId+'" name="op['+field+']"></td>' +
-      '<td class="values"></td>'
-    );
-    select = tr.find('td.operator select');
-
-    filterTable.append(tr);
-
-    // dropdown list of perators
-
-    for (i=0;i<operators.length;i++){
-      var option = $('<option>').val(operators[i]).text(operators[i]);
-      if (operators[i] == operator) { option.attr('selected', true); }
-      select.append(option);
-    }
-    select.change(function(){ toggleOperator(field); });
-
-    // input field for version
-
-    tr.find('td.values').append(
-      '<span style="display:none;"><input type="number" class="value" id="values_'+fieldId+'_1" name="v['+field+'][]">'
-    );
-
-  } else {
-    // filter from open version was chose
-    var tr = $('<tr class="filter">').attr('id', 'tr_'+fieldId).html(
-      '<td class="field"><input checked="checked" id="cb_'+fieldId+'" name="f[]" value="'+field+'" type="checkbox"><label for="cb_'+fieldId+'"> '+filterOptions['name']+'</label></td>' + '<td class="values"></td>'
-    );
-    
-    filterTable.append(tr);
-
-    tr.find('td.values').append(
-      '<span style="display:none;"><select class="value" id="values_'+fieldId+'_1" name="v['+field+'][]"></select>'
-    );
-  }
+  tr.find('td.values').append(
+    '<span style="display:none;"><select class="value" id="values_'+fieldId+'_1" name="v['+field+'][]"></select>'
+  );
 
   select = tr.find('td.values select');
   for (i=0;i<filterValues.length;i++){
